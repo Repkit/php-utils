@@ -12,12 +12,15 @@
           <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
           <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
-        <?php require 'Sysinfo/Server.php';?>
-        <?php require 'Sysinfo/Client.php';?>
+        <?php require 'src/RpkUtils/Sysinfo/Server.php';?>
+        <?php require 'src/RpkUtils/Sysinfo/Client.php';?>
+        <?php require 'src/RpkUtils/Converter/Time.php';?>
         <?php use RpkUtils\Sysinfo\Server as server;?>
         <?php use RpkUtils\Sysinfo\Client as client;?>
+        <?php use RpkUtils\Converter\Time as conveter_time;?>
     </head>
     <body>
+        <!--server params-->
         <div class="panel panel-default">
           <!-- Default panel contents -->
           <div class="panel-heading">Server info</div>
@@ -65,7 +68,37 @@
           </table>
         </div>
         
+        <!--real time data-->
+        <div class="panel panel-default">
+          <!-- Default panel contents -->
+          <div class="panel-heading">Real time data</div>
         
+          <!-- Table -->
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>Cpu:</td>
+                <td><?=server::cpu()->summary?></td>
+              </tr>
+              <tr>
+                <td>Uptime:</td>
+                <td><?=conveter_time::sec2time(server::uptime())?></td>
+              </tr>
+              <tr>
+                <td>Usage:</td>
+                <td>
+                    <?php
+                        $cci1 = server::cpuCoreInfo();
+                        sleep(1);
+                        $cci2 = server::cpuCoreInfo();
+                        $data = server::cpuPercentages($cci1, $cci2);
+                        echo $data['cpu0']['user']."%us,  ".$data['cpu0']['sys']."%sy,  ".$data['cpu0']['nice']."%ni, ".$data['cpu0']['idle']."%id,  ".$data['cpu0']['iowait']."%wa,  ".$data['cpu0']['irq']."%irq,  ".$data['cpu0']['softirq']."%softirq";
+                    ?>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         
     <!--SCRIPTS -->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

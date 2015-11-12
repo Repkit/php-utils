@@ -3,7 +3,7 @@
 /**
  * Server object
  *
- * @package    Server
+ * @package    RpkUtils\Sysinfo
  * @author     Repkit <repkit@gmail.com>
  * @copyright  2015 Repkit
  * @license    MIT <http://opensource.org/licenses/MIT>
@@ -176,6 +176,125 @@
         }
         
         return $adminmail;
+    }
+    
+    /**
+     * Server uptime
+     * @return float seconds
+     */
+    public static function uptime()
+    {
+        $uptime = -1;
+        if(false !== ($data = @file("/proc/uptime"))){
+            $data = explode(' ',reset($data));
+            $uptime = reset($data);
+        }
+        
+        return floatval($uptime);
+    }
+    
+    /**
+     * Server cpu
+     * @return \StdClass
+     */
+    public static function cpu()
+    {
+        $cpu = new \StdClass();
+        
+        if(false !== ($data = @file('/proc/cpuinfo'))){
+            
+            $data = implode("", $data);
+            
+            // processing aka pre matching data
+            @preg_match_all('/model\s+name\s{0,}\:+\s{0,}([\w\s\)\(\@.-]+)([\r\n]+)/s', $data, $model);
+            @preg_match_all('/cpu\s+MHz\s{0,}\:+\s{0,}([\d\.]+)[\r\n]+/', $data, $mhz);
+            @preg_match_all('/cache\s+size\s{0,}\:+\s{0,}([\d\.]+\s{0,}[A-Z]+[\r\n]+)/', $data, $cache);
+            @preg_match_all('/bogomips\s{0,}\:+\s{0,}([\d\.]+)[\r\n]+/', $data, $bogomips);
+            
+        }
+        
+        if (false !== is_array($model[1])){
+            
+            $cpu->num = sizeof($model[1]);
+            $x1 = '';
+    		if($cpu->num != 1){
+    		    $x1 = ' ×'.$cpu->num;
+    		}
+    		
+    		$cpu->frequency = $mhz[1][0];
+    		$cpu->cache2    = $cache[1][0];
+    		$cpu->bogomips  = $bogomips[1][0];
+    		$cpu->model     = $model[1][0];
+    		$cpu->summary   = 'Model: '.$model[1][0].' | Frequency: '.$mhz[1][0].' | Secondary cache: '.$cache[1][0].' | Bogomips: '.$bogomips[1][0].' '.$x1;
+    		
+    	}
+    	
+    	return $cpu;
+    }
+    
+    /**
+     * Server cpu cores information
+     * @return array 
+     */
+    public static function cpuCoreInfo() 
+    {
+        $cores = array();
+        if(false !== ($data = @file('/proc/stat'))){
+            foreach($data as $line ) {
+                if( preg_match('/^cpu[0-9]/', $line) ){
+                    $info = explode(' ', $line);
+                    $cores[]=array(
+                        'user'=>$info[1],
+                        'nice'=>$info[2],
+                        'sys' => $info[3],
+                        'idle'=>$info[4],
+                        'iowait'=>$info[5],
+                        'irq' => $info[6],
+                        'softirq' => $info[7]
+                    );
+                }
+            }
+        }
+        
+        return $cores;
+        
+    }
+    
+    /**
+     * Server cpu percentages
+     * @param cpuCoreInfo()
+     * @param cpuCoreInfo()
+     * @return array
+     */
+    public static function cpuPercentages($cpuCoreInfo1, $cpuCoreInfo2) 
+    {
+        
+        $cpus = array();
+        foreach($cpuCoreInfo1 as $idx => $core){
+            
+            $dif = array();
+            $cpu = array();
+            
+            $dif['user']    = $cpuCoreInfo2[$idx]['user'] - $cpuCoreInfo1[$idx]['user'];
+            $dif['nice']    = $cpuCoreInfo2[$idx]['nice'] - $cpuCoreInfo1[$idx]['nice'];
+            $dif['sys']     = $cpuCoreInfo2[$idx]['sys'] - $cpuCoreInfo1[$idx]['sys'];
+            $dif['idle']    = $cpuCoreInfo2[$idx]['idle'] - $cpuCoreInfo1[$idx]['idle'];
+            $dif['iowait']  = $cpuCoreInfo2[$idx]['iowait'] - $cpuCoreInfo1[$idx]['iowait'];
+            $dif['irq']     = $cpuCoreInfo2[$idx]['irq'] - $cpuCoreInfo1[$idx]['irq'];
+            $dif['softirq'] = $cpuCoreInfo2[$idx]['softirq'] - $cpuCoreInfo1[$idx]['softirq'];
+            
+            $total = array_sum($dif);
+            
+            foreach($dif as $x=>$y){
+                $cpu[$x] = round($y / $total * 100, 2);
+            } 
+                
+            $cpus['cpu' . $idx] = $cpu;
+            
+        }
+        
+        return $cpus;
+        
     }
     
      
