@@ -1,0 +1,21 @@
+{
+    "name": "rpk/php-toolbox",
+    "type": "library",
+    "description": "A php toolbox useful in every project",
+    "keywords": ["php","toolbox", "utils"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Repkit",
+            "email": "repkit@gmail.com",
+            "homepage": "7qbs.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.23"
+    },
+    "autoload": {
+        "psr-4": {"RpkUtils\\": "src/RpkUtils"}
+    },
+}
