@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Example of rpk-utils-toolbox</title>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <?php require 'Sysinfo/Server.php';?>
+        <?php require 'Sysinfo/Client.php';?>
+        <?php use RpkUtils\Sysinfo\Server as server;?>
+        <?php use RpkUtils\Sysinfo\Client as client;?>
+    </head>
+    <body>
+        <div class="panel panel-default">
+          <!-- Default panel contents -->
+          <div class="panel-heading">Server info</div>
+        
+          <!-- Table -->
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>Name:</td>
+                <td><?=server::hostname()?> <i>(<?=server::name()?>)</i></td>
+              </tr>
+              <tr>
+                <td>Ip:</td>
+                <td><?=server::ip()?></td>
+              </tr>
+              <tr>
+                <td>Os:</td>
+                <td><?=server::os()?></td>
+              </tr>
+              <tr>
+                <td>Kernel:</td>
+                <td><?=server::kernel()?></td>
+              </tr>
+              <tr>
+                <td>Software:</td>
+                <td><?=server::software()?></td>
+              </tr>
+              <tr>
+                <td>Language:</td>
+                <td><?=server::language()?></td>
+              </tr>
+              <tr>
+                <td>Port:</td>
+                <td><?=server::port()?></td>
+              </tr>
+              <tr>
+                <td>Document root:</td>
+                <td><?=server::docroot()?></td>
+              </tr>
+              <tr>
+                <td>Administrator email:</td>
+                <td><?=server::adminmail()?></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        
+        
+    <!--SCRIPTS -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>
+    </body>
+</html>
