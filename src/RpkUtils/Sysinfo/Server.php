@@ -91,7 +91,7 @@
     {
         if($os = static::os(true)){
             $os = explode(' ', $os);
-             if('/'==DIRECTORY_SEPARATOR ){
+             if('/' == DIRECTORY_SEPARATOR ){
                 $hostname = $os[1];
             }else{
                 $hostname = $os[2];
@@ -186,7 +186,7 @@
     {
         $uptime = -1;
         if(false !== ($data = @file("/proc/uptime"))){
-            $data = explode(' ',reset($data));
+            $data   = explode(' ',reset($data));
             $uptime = reset($data);
         }
         
@@ -244,13 +244,13 @@
                 if( preg_match('/^cpu[0-9]/', $line) ){
                     $info = explode(' ', $line);
                     $cores[]=array(
-                        'user'=>$info[1],
-                        'nice'=>$info[2],
-                        'sys' => $info[3],
-                        'idle'=>$info[4],
-                        'iowait'=>$info[5],
-                        'irq' => $info[6],
-                        'softirq' => $info[7]
+                        'user'      => $info[1],
+                        'nice'      => $info[2],
+                        'sys'       => $info[3],
+                        'idle'      => $info[4],
+                        'iowait'    => $info[5],
+                        'irq'       => $info[6],
+                        'softirq'   => $info[7]
                     );
                 }
             }
@@ -295,6 +295,114 @@
         
         return $cpus;
         
+    }
+    
+    /**
+     * Server hdd information
+     * @return \StdClass
+     *          ->total
+     *          ->free
+     */
+    public static function hdd() 
+    {
+        $hdd        = new \StdClass();
+        $hdd->total = @disk_total_space(".");
+        $hdd->free  = @disk_free_space(".");
+        
+        return $hdd;
+        
+    }
+    
+    /**
+     * Server memory information
+     * @return \StdClass 
+     *              ->total
+     *              ->used
+     *              ->free
+     *              ->cached
+     *              ->buffers
+     *              ->real->used
+     *              ->real->free
+     *              ->swapo->used
+     *              ->swapo->free
+     * @important: all data is in bytes
+     */
+    public static function memory() 
+    {
+        $memory         = new \StdClass();
+        $memory->real   = new \StdClass();
+        $memory->swap   = new \StdClass();
+        
+        if(false !== ($data = @file('/proc/meminfo'))){
+            
+            $data = implode("", $data);
+            
+            //processing and stuff aka preg matching
+            preg_match_all("/MemTotal\s{0,}\:+\s{0,}([\d\.]+).+?MemFree\s{0,}\:+\s{0,}([\d\.]+).+?Cached\s{0,}\:+\s{0,}([\d\.]+).+?SwapTotal\s{0,}\:+\s{0,}([\d\.]+).+?SwapFree\s{0,}\:+\s{0,}([\d\.]+)/s", $data, $meminfo);
+    	    preg_match_all("/Buffers\s{0,}\:+\s{0,}([\d\.]+)/s", $data, $buffers);
+    	    
+    	    $memory->total          = $meminfo[1][0]*1024;
+    	    $memory->free           = $meminfo[2][0]*1024;
+    	    $memory->used           = $memory->total - $memory->free;
+	        $memory->cached         = $meminfo[3][0]*1024;
+    	    $memory->buffers        = $buffers[1][0]*1024;
+    	    
+    	    $memory->real->used     = $memory->total - $memory->free - $memory->cached - $memory->buffers;
+    	    $memory->real->free     = $memory->total - $memory->real->used;
+    	    
+    	    $memory->swap->free     = $meminfo[5][0]*1024;
+    	    $memory->swap->used     = $meminfo[4][0]*1024 - $memory->swap->free;
+    	    
+        }
+
+        return $memory;
+        
+    }
+    
+    /**
+     * Server average load info
+     * @return \StdClass
+     *              ->min1
+     *              ->min5
+     *              ->min15
+     *              ->running
+     *              ->exists
+     *              ->recentPID
+     */ 
+    public static function avgload()
+    {
+        $avgload = new \StdClass();
+        if(false !== ($data = @file('/proc/loadavg'))){
+            $data               = explode(" ", implode("", $data));
+            $data               = array_chunk($data, 4);
+            $avgload->min1      = $data[0][0];
+            $avgload->min5      = $data[0][1];
+            $avgload->min15     = $data[0][2];
+            $fourth             = explode('/',$data[0][3]);
+            $avgload->running   = $fourth[0];
+            $avgload->exists    = $fourth[1];
+            $avgload->recentPID = $data[1][0];
+        }
+        
+        return $avgload;
+        
+    }
+    
+    public static function network()
+    {
+        $network = array();
+        if (false !== ($data = @file("/proc/net/dev"))){
+            //first two fields are headers :)
+            for ($i = 2; $i < count($data); $i++ ){
+                //processing aka preg matching
+                preg_match_all("/([^\s]+):[\s]{0,}(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/", $data[$i], $netinfo);
+                $network[$i]['name']    = $netinfo[1][0];
+                $network[$i]['in']      = $netinfo[2][0];
+                $network[$i]['out']     = $netinfo[10][0];
+            }
+        }
+        
+        return $network;
     }
     
      

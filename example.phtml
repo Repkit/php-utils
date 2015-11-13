@@ -15,17 +15,17 @@
         <?php require 'src/RpkUtils/Sysinfo/Server.php';?>
         <?php require 'src/RpkUtils/Sysinfo/Client.php';?>
         <?php require 'src/RpkUtils/Converter/Time.php';?>
+        <?php require 'src/RpkUtils/Converter/Size.php';?>
+        <?php require 'src/RpkUtils/Math.php';?>
         <?php use RpkUtils\Sysinfo\Server as server;?>
         <?php use RpkUtils\Sysinfo\Client as client;?>
-        <?php use RpkUtils\Converter\Time as conveter_time;?>
+        <?php use RpkUtils\Converter as conv;?>
+        <?php use RpkUtils\Math as math;?>
     </head>
     <body>
-        <!--server params-->
+        <!--Server params-->
         <div class="panel panel-default">
-          <!-- Default panel contents -->
           <div class="panel-heading">Server info</div>
-        
-          <!-- Table -->
           <table class="table">
             <tbody>
               <tr>
@@ -64,16 +64,17 @@
                 <td>Administrator email:</td>
                 <td><?=server::adminmail()?></td>
               </tr>
+              <tr>
+                <td>Average load:</td>
+                <td>1min: <?=server::avgload()->min1?> | 5min: <?=server::avgload()->min5?> | 15min: <?=server::avgload()->min15?></td>
+              </tr>
             </tbody>
           </table>
         </div>
         
-        <!--real time data-->
+        <!--Real time data-->
         <div class="panel panel-default">
-          <!-- Default panel contents -->
           <div class="panel-heading">Real time data</div>
-        
-          <!-- Table -->
           <table class="table">
             <tbody>
               <tr>
@@ -82,7 +83,7 @@
               </tr>
               <tr>
                 <td>Uptime:</td>
-                <td><?=conveter_time::sec2time(server::uptime())?></td>
+                <td><?=conv\Time::sec2time(server::uptime())?></td>
               </tr>
               <tr>
                 <td>Usage:</td>
@@ -96,6 +97,67 @@
                     ?>
                 </td>
               </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!--Space usage-->
+        <div class="panel panel-default">
+          <div class="panel-heading">Space usage:</div>
+          <p>Total: <?=conv\Size::convert(server::hdd()->total)?> | Used: <?=conv\Size::convert(server::hdd()->total - server::hdd()->free)?> | Free: <?=conv\Size::convert(server::hdd()->free)?></p>
+          <div class="progress">
+            <?php $hddPerc = round(math::percentage(server::hdd()->total - server::hdd()->free, server::hdd()->total),2);?>
+            <div class="progress-bar" role="progressbar" aria-valuenow="<?=$hddPerc?>" aria-valuemin="0" aria-valuemax="100" style="width: <?=$hddPerc?>%;">
+              <?=$hddPerc?>%
+            </div>
+          </div>
+        </div>
+        
+        <!--Memory usage-->
+        <div class="panel panel-default">
+          <div class="panel-heading">Memory usage:</div>
+          <p>Total: <?=conv\Size::convert(server::memory()->used + server::memory()->free)?> | Used: <?=conv\Size::convert(server::memory()->used)?> | Free: <?=conv\Size::convert(server::memory()->free)?></p>
+          <div class="progress">
+            <?php $memPerc = round(math::percentage(server::memory()->used, server::memory()->total),2);?>
+            <div class="progress-bar" role="progressbar" aria-valuenow="<?=$memPerc?>" aria-valuemin="0" aria-valuemax="100" style="width: <?=$memPerc?>%;">
+              <?=$memPerc?>%
+            </div>
+          </div>
+          <p>Cache: <?=conv\Size::convert(server::memory()->cached)?> | Buffers: <?=conv\Size::convert(server::memory()->buffers)?></p>
+          <div class="progress">
+            <?php $memCachePerc = round(math::percentage(server::memory()->cached, server::memory()->total),2);?>
+            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<?=$memCachePerc?>" aria-valuemin="0" aria-valuemax="100" style="width: <?=$memCachePerc?>%;">
+              <?=$memCachePerc?>%
+            </div>
+          </div>
+          <p><strong>Real</strong> used: <?=conv\Size::convert(server::memory()->real->used)?> | free: <?=conv\Size::convert(server::memory()->real->free)?></p>
+          <div class="progress">
+            <?php $memRealPerc = round(math::percentage(server::memory()->real->used, server::memory()->total),2);?>
+            <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?=$memRealPerc?>" aria-valuemin="0" aria-valuemax="100" style="width: <?=$memRealPerc?>%;">
+              <?=$memRealPerc?>%
+            </div>
+          </div>
+          <p><strong>Swap</strong> used: <?=conv\Size::convert(server::memory()->swap->used)?> | free: <?=conv\Size::convert(server::memory()->swap->free)?></p>
+          <div class="progress">
+            <?php $memRealPerc = round(math::percentage(server::memory()->swap->used, server::memory()->total),2);?>
+            <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<?=$memRealPerc?>" aria-valuemin="0" aria-valuemax="100" style="width: <?=$memRealPerc?>%;">
+              <?=$memRealPerc?>%
+            </div>
+          </div>
+        </div>
+        
+         <!--Network usage-->
+        <div class="panel panel-default">
+          <div class="panel-heading">Network usage:</div>
+          <table class="table">
+            <tbody>
+              <?php foreach(server::network() as $device):?>
+              <tr>
+                <td><?=$device['name']?>:</td>
+                <td>in: <?=conv\Size::convert($device['in'])?></td>
+                <td>out: <?=conv\Size::convert($device['out'])?></td>
+              </tr>
+              <?php endforeach;?>
             </tbody>
           </table>
         </div>
