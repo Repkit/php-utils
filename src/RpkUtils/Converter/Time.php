@@ -14,6 +14,11 @@
  
  class Time
  {
+    /**
+     * Convert seconds into human readeble time
+     * @param int $seconds 
+     * @return string
+    */ 
     public static function sec2time($seconds) 
     {
         $sec = intval($seconds);

@@ -16,12 +16,14 @@
  {
      /**
       * Calculate percentage of a value from a total
-      * @param $value the value for which we want to calc the percent
-      * @param $total the total from which we want to calc the percent value 
+      * @param number $value the value for which we want to calc the percent
+      * @param number $total the total from which we want to calc the percent value 
       * @return float
       */ 
     public static function percentage($value, $from) 
     {
+        $value = floatval($value);
+        $from = floatval($from);
         return floatval($value/$from*100);
     }
  }
