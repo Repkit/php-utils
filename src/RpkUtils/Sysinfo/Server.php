@@ -404,6 +404,24 @@
         
         return $network;
     }
+
+    public static function devices()
+    {
+        $devices = array();
+        if(false !== ($data = @file_get_contents('/proc/diskstats'))){
+            // $data = file_get_contents('/proc/diskstats');
+            $matches = array();
+            preg_match_all('/^\s*\d+\s+\d+\s+(.*?)(\d+) (\d+) \d+ \d+ (\d+) (\d+) \d+ \d+ (\d+) \d+ \d+ \d+\s*$/m', $data, $matches, PREG_SET_ORDER);
+            foreach ($matches as $set){
+                $devices[$set[1]][$set[2]]['reads'] = $set[3];
+                $devices[$set[1]][$set[2]]['readTime'] = $set[4];
+                $devices[$set[1]][$set[2]]['writes'] = $set[5];
+                $devices[$set[1]][$set[2]]['writeTime'] = $set[6];
+            }
+        }
+
+        return $devices;
+    }
     
      
  }
