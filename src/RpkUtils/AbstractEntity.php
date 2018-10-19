@@ -241,4 +241,13 @@ abstract class AbstractEntity implements \ArrayAccess, \Countable, \JsonSerializ
     {
         return true;
     }
+    
+    /**
+     * Get properties
+     * @return array
+     */
+    public function getProperties()
+    {
+        return array_keys($this->_data);
+    }
 }
