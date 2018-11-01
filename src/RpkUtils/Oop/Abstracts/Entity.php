@@ -10,9 +10,9 @@
  * @since      2018-09-21
  */
 
-namespace RpkUtils;
+namespace RpkUtils\Oop\Abstracts;
 
-abstract class AbstractEntity implements \ArrayAccess, \Countable, \JsonSerializable
+abstract class Entity implements \ArrayAccess, \Countable, \JsonSerializable
 {
 
     /**
